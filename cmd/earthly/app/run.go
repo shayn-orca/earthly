@@ -11,7 +11,6 @@ import (
 
 	billingpb "github.com/earthly/cloud-api/billing"
 	"github.com/earthly/cloud-api/logstream"
-	"github.com/fatih/color"
 	"github.com/moby/buildkit/util/grpcerrors"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
@@ -350,7 +349,7 @@ func (app *EarthlyApp) run(ctx context.Context, args []string, lastSignal *syncu
 			if app.BaseCLI.Flags().Verbose {
 				app.BaseCLI.Console().Warnf("Canceled: %v\n", err)
 			} else {
-				app.BaseCLI.Console().Warnf("Canceled\n")
+				app.BaseCLI.Console().Warnf("Canceled; the err is %v. don't let alex merge this.\n", err)
 			}
 			if containerutil.IsLocal(app.BaseCLI.Flags().BuildkitdSettings.BuildkitAddress) && lastSignal.Get() == nil {
 				app.printCrashLogs(ctx)
@@ -373,26 +372,26 @@ func (app *EarthlyApp) run(ctx context.Context, args []string, lastSignal *syncu
 }
 
 func (app *EarthlyApp) printCrashLogs(ctx context.Context) {
-	app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "System Info", "")
-	fmt.Fprintf(os.Stderr, "version: %s\n", app.BaseCLI.Version())
-	fmt.Fprintf(os.Stderr, "build-sha: %s\n", app.BaseCLI.GitSHA())
-	fmt.Fprintf(os.Stderr, "platform: %s\n", common.GetPlatform())
+	//too spammy for now app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "System Info", "")
+	//too spammy for now fmt.Fprintf(os.Stderr, "version: %s\n", app.BaseCLI.Version())
+	//too spammy for now fmt.Fprintf(os.Stderr, "build-sha: %s\n", app.BaseCLI.GitSHA())
+	//too spammy for now fmt.Fprintf(os.Stderr, "platform: %s\n", common.GetPlatform())
 
-	dockerVersion, err := buildkitd.GetDockerVersion(ctx, app.BaseCLI.Flags().ContainerFrontend)
-	if err != nil {
-		app.BaseCLI.Console().Warnf("failed querying docker version: %s\n", err.Error())
-	} else {
-		app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "Docker Version", "")
-		fmt.Fprintln(os.Stderr, dockerVersion)
-	}
+	//too spammy for now dockerVersion, err := buildkitd.GetDockerVersion(ctx, app.BaseCLI.Flags().ContainerFrontend)
+	//too spammy for now if err != nil {
+	//too spammy for now 	app.BaseCLI.Console().Warnf("failed querying docker version: %s\n", err.Error())
+	//too spammy for now } else {
+	//too spammy for now 	app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "Docker Version", "")
+	//too spammy for now 	fmt.Fprintln(os.Stderr, dockerVersion)
+	//too spammy for now }
 
-	logs, err := buildkitd.GetLogs(ctx, app.BaseCLI.Flags().ContainerName, app.BaseCLI.Flags().ContainerFrontend, app.BaseCLI.Flags().BuildkitdSettings)
-	if err != nil {
-		app.BaseCLI.Console().Warnf("failed fetching earthly-buildkit logs: %s\n", err.Error())
-	} else {
-		app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "Buildkit Logs", "")
-		fmt.Fprintln(os.Stderr, logs)
-	}
+	//too spammy for now logs, err := buildkitd.GetLogs(ctx, app.BaseCLI.Flags().ContainerName, app.BaseCLI.Flags().ContainerFrontend, app.BaseCLI.Flags().BuildkitdSettings)
+	//too spammy for now if err != nil {
+	//too spammy for now 	app.BaseCLI.Console().Warnf("failed fetching earthly-buildkit logs: %s\n", err.Error())
+	//too spammy for now } else {
+	//too spammy for now 	app.BaseCLI.Console().PrintBar(color.New(color.FgHiRed), "Buildkit Logs", "")
+	//too spammy for now 	fmt.Fprintln(os.Stderr, logs)
+	//too spammy for now }
 }
 
 func errorWithPrefix(err string) string {

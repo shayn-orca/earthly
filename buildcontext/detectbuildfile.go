@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/earthly/earthly/domain"
+	"github.com/earthly/earthly/util/pcounter"
 	gwclient "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/pkg/errors"
 )
@@ -69,10 +70,12 @@ func detectBuildFileInRef(ctx context.Context, earthlyRef domain.Reference, ref 
 
 func fileExists(ctx context.Context, ref gwclient.Reference, fpath string) (bool, error) {
 	dir, file := path.Split(fpath)
+	_, refFuncReleaser := pcounter.CanDoRefFunc()
 	fstats, err := ref.ReadDir(ctx, gwclient.ReadDirRequest{
 		Path:           dir,
 		IncludePattern: file,
 	})
+	refFuncReleaser()
 	if err != nil {
 		return false, errors.Wrapf(err, "cannot read dir %s", dir)
 	}

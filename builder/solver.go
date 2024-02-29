@@ -2,6 +2,7 @@ package builder
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/earthly/earthly/conslogging"
@@ -55,7 +56,9 @@ func (s *solver) buildMainMulti(ctx context.Context, bf gwclient.BuildFunc, onIm
 	var buildErr error
 	eg.Go(func() error {
 		var err error
+		fmt.Printf("ACB calling bkClient.Build\n")
 		_, err = s.bkClient.Build(ctx, *solveOpt, "", bf, ch)
+		fmt.Printf("ACB bkClient.Build err=%v\n", err)
 		if err != nil {
 			if grpcErr, ok := grpcerrors.AsGRPCStatus(err); ok {
 				if ie, ok := earthfile2llb.FromError(errors.New(grpcErr.Message())); ok {

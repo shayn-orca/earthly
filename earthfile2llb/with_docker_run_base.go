@@ -9,6 +9,7 @@ import (
 	"github.com/containerd/containerd/platforms"
 	debuggercommon "github.com/earthly/earthly/debugger/common"
 	"github.com/earthly/earthly/util/llbutil"
+	"github.com/earthly/earthly/util/pcounter"
 	"github.com/earthly/earthly/util/platutil"
 	"github.com/moby/buildkit/client/llb"
 	gwclient "github.com/moby/buildkit/frontend/gateway/client"
@@ -172,9 +173,12 @@ func (w *withDockerRunBase) getComposeConfig(ctx context.Context, opt WithDocker
 	if err != nil {
 		return nil, errors.Wrap(err, "state to ref compose config")
 	}
+
+	_, refFuncReleaser := pcounter.CanDoRefFunc()
 	composeConfigDt, err := ref.ReadFile(ctx, gwclient.ReadRequest{
 		Filename: fmt.Sprintf("/tmp/earthly/%s", composeConfigFile),
 	})
+	refFuncReleaser()
 	if err != nil {
 		return nil, errors.Wrap(err, "read compose config file")
 	}

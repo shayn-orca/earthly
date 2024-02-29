@@ -41,6 +41,7 @@ import (
 	"github.com/earthly/earthly/util/llbutil"
 	"github.com/earthly/earthly/util/llbutil/llbfactory"
 	"github.com/earthly/earthly/util/llbutil/pllb"
+	"github.com/earthly/earthly/util/pcounter"
 	"github.com/earthly/earthly/util/platutil"
 	"github.com/earthly/earthly/util/shell"
 	"github.com/earthly/earthly/util/stringutil"
@@ -723,9 +724,13 @@ func (c *Converter) RunExitCode(ctx context.Context, opts ConvertRunOpts) (int, 
 		if err != nil {
 			return 0, errors.Wrap(err, "run exit code state to ref")
 		}
+		fmt.Printf("RunExitCode %s\n", c.target.String())
+		_, refFuncReleaser := pcounter.CanDoRefFunc()
 		codeDt, err = ref.ReadFile(ctx, gwclient.ReadRequest{
 			Filename: exitCodeFile,
 		})
+		refFuncReleaser()
+		fmt.Printf("RunExitCode %s err=%v\n", c.target.String(), err)
 		if err != nil {
 			return 0, errors.Wrap(err, "read exit code")
 		}
@@ -823,7 +828,10 @@ func (c *Converter) runCommand(ctx context.Context, outputFileName string, isExp
 		if err != nil {
 			return "", errors.Wrapf(err, "build arg state to ref")
 		}
+		fmt.Printf("runCommand reading file %s\n", c.target.String())
+		_, refFuncReleaser := pcounter.CanDoRefFunc()
 		outputDt, err = ref.ReadFile(ctx, gwclient.ReadRequest{Filename: outputFile})
+		refFuncReleaser()
 		if err != nil {
 			return "", errors.Wrapf(err, "non constant build arg read request")
 		}
@@ -2500,8 +2508,13 @@ func (c *Converter) forceExecution(ctx context.Context, state pllb.State, platr 
 	}
 	// We're not really interested in reading the dir - we just
 	// want to un-lazy the ref so that the commands have executed.
+	fmt.Printf("forceExecution %s\n", c.target.String())
+	_, refFuncReleaser := pcounter.CanDoRefFunc()
 	_, err = ref.ReadDir(ctx, gwclient.ReadDirRequest{Path: "/"})
+	refFuncReleaser()
+	fmt.Printf("forceExecution %s err=%v\n", c.target.String(), err)
 	if err != nil {
+		fmt.Printf("ACB I failed here with %v\n", err)
 		return errors.Wrap(err, "unlazy force execution")
 	}
 	return nil
@@ -2518,9 +2531,12 @@ func (c *Converter) readArtifact(ctx context.Context, mts *states.MultiTarget, a
 	if err != nil {
 		return nil, errors.Wrap(err, "state to ref solve artifact")
 	}
+	fmt.Printf("readArtifact %s\n", c.target.String())
+	_, refFuncReleaser := pcounter.CanDoRefFunc()
 	artDt, err := ref.ReadFile(ctx, gwclient.ReadRequest{
 		Filename: artifact.Artifact,
 	})
+	refFuncReleaser()
 	if err != nil {
 		return nil, errors.Wrapf(err, "read artifact %s", artifact.String())
 	}

@@ -30,6 +30,7 @@ import (
 	"github.com/earthly/earthly/util/llbutil"
 	"github.com/earthly/earthly/util/llbutil/pllb"
 	"github.com/earthly/earthly/util/llbutil/secretprovider"
+	"github.com/earthly/earthly/util/pcounter"
 	"github.com/earthly/earthly/util/platutil"
 	"github.com/earthly/earthly/util/saveartifactlocally"
 	"github.com/earthly/earthly/util/syncutil/semutil"
@@ -265,6 +266,7 @@ func (b *Builder) convertAndBuild(ctx context.Context, target domain.Target, opt
 		stopRegistryProxyFunc()
 	}()
 
+	fmt.Printf("ACB creating buildFunc\n")
 	var mts *states.MultiTarget
 	buildFunc := func(childCtx context.Context, gwClient gwclient.Client) (*gwclient.Result, error) {
 		if opt.EnableGatewayClientLogging {
@@ -331,14 +333,16 @@ func (b *Builder) convertAndBuild(ctx context.Context, target domain.Target, opt
 				return nil, err
 			}
 		}
+		fmt.Printf("ACB buildFunc here0\n")
 		if opt.GlobalWaitBlockFtr {
 			if opt.OnlyArtifact != nil || opt.OnlyFinalTargetImages {
 				b.opt.Console.Printf("builder.go bf code is still required for OnlyArtifact or OnlyFinalTargetImages modes (GlobalWaitBlockFtr has no effect)\n")
 			} else {
-				b.opt.Console.Printf("skipping builder.go bf code due to GlobalWaitBlockFtr\n")
+				b.opt.Console.Printf("ACB skipping builder.go bf code due to GlobalWaitBlockFtr\n")
 				return nil, nil
 			}
 		}
+		fmt.Printf("ACB buildFunc here1\n")
 
 		// WARNING: the code below is deprecated, and will eventually be removed, in favour of wait_block.go
 		// This code is only used when dealing with VERSION 0.5 and 0.6; once these reach end-of-life, we can
@@ -526,6 +530,10 @@ func (b *Builder) convertAndBuild(ctx context.Context, target domain.Target, opt
 				}
 			}
 		}
+		fmt.Printf("ACB buildFunc here2\n")
+
+		pcounter.WaitUntilShutdownIsSafe()
+
 		return gwCrafter.GetResult(), nil
 	}
 	exportedTarImageManifestKeys := map[string]struct{}{}

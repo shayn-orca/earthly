@@ -18,6 +18,7 @@ import (
 	"github.com/earthly/earthly/util/llbutil"
 	"github.com/earthly/earthly/util/llbutil/llbfactory"
 	"github.com/earthly/earthly/util/llbutil/pllb"
+	"github.com/earthly/earthly/util/pcounter"
 	"github.com/earthly/earthly/util/platutil"
 	"github.com/earthly/earthly/util/stringutil"
 	"github.com/earthly/earthly/util/syncutil/synccache"
@@ -157,9 +158,11 @@ func (gr *gitResolver) resolveEarthProject(ctx context.Context, gwClient gwclien
 		if err != nil {
 			return nil, err
 		}
+		_, refFuncReleaser := pcounter.CanDoRefFunc()
 		bfBytes, err := gitState.ReadFile(ctx, gwclient.ReadRequest{
 			Filename: bf,
 		})
+		refFuncReleaser()
 		if err != nil {
 			return nil, errors.Wrap(err, "read build file")
 		}
@@ -289,6 +292,8 @@ func (gr *gitResolver) resolveGitProject(ctx context.Context, gwClient gwclient.
 		if err != nil {
 			return nil, errors.Wrap(err, "state to ref git meta")
 		}
+		_, refFuncReleaser := pcounter.CanDoRefFunc()
+		defer refFuncReleaser()
 		gitHashBytes, err := gitMetaRef.ReadFile(ctx, gwclient.ReadRequest{
 			Filename: "git-hash",
 		})
